@@ -1,0 +1,75 @@
+name: OpenWorkouts
+options:
+  bundleIdPrefix: se.openworkouts
+  deploymentTarget:
+    iOS: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+targets:
+  OpenWorkouts:
+    type: application
+    platform: iOS
+    sources:
+      - OpenWorkouts
+    resources:
+      - OpenWorkouts/Resources/exercises.json
+    info:
+      path: OpenWorkouts/Info.plist
+      properties:
+        NSHealthShareUsageDescription: "OpenWorkouts reads your workouts and active energy to show your training stats."
+        NSHealthUpdateUsageDescription: "OpenWorkouts saves your workouts to Health."
+        UILaunchScreen: {}
+        UIBackgroundModes:
+          - remote-notification
+    entitlements:
+      path: OpenWorkouts/OpenWorkouts.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.se.openworkouts.app
+        aps-environment: development
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: NO
+  OpenWorkoutsTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - OpenWorkoutsTests
+    dependencies:
+      - target: OpenWorkouts
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/OpenWorkouts.app/OpenWorkouts"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+  OpenWorkoutsUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - OpenWorkoutsUITests
+    dependencies:
+      - target: OpenWorkouts
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: OpenWorkouts
+schemes:
+  OpenWorkouts:
+    build:
+      targets:
+        OpenWorkouts: all
+        OpenWorkoutsTests: [test]
+        OpenWorkoutsUITests: [test]
+    test:
+      gatherCoverageData: true
+      coverageTargets:
+        - OpenWorkouts
+      targets:
+        - OpenWorkoutsTests
+        - OpenWorkoutsUITests
