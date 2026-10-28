@@ -43,7 +43,7 @@ struct StatisticsView: View {
                     }
                     .frame(height: 200)
                 } header: {
-                    header("Total weight lifted", "\(Int(totalKg).formatted()) kg")
+                    header("Total weight lifted", "\(totalKg.formatted(.number.precision(.fractionLength(0)))) kg")
                 }
             }
         }
