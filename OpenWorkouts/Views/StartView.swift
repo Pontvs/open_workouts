@@ -41,19 +41,26 @@ struct StartView: View {
             if let old, new == nil { WorkoutActions.discardIfEmptyDraft(old, context: modelContext) }
         }
         .task {
-            // Debug hook for UI tests: seed only when empty so re-appearing doesn't duplicate rows.
-            if ProcessInfo.processInfo.arguments.contains("-seedSampleWorkouts"), workouts.isEmpty {
-                for days in 0..<6 {
-                    let end = Date.now.addingTimeInterval(-Double(days) * 86_400)
-                    let workout = Workout(startedAt: end.addingTimeInterval(-3_600))
-                    workout.endedAt = end
-                    modelContext.insert(workout)
-                }
-            }
+            seedSampleWorkoutsIfRequested()
             bodyweightKg = Profile.current(in: modelContext).weightKg
-            // shortcut: resumes the workout in the app only, the HealthKit session is lost if the app was killed; upgrade with HKHealthStore.recoverActiveWorkoutSession if Fitness entries go missing
-            if activeWorkout == nil { activeWorkout = WorkoutActions.running(in: workouts) }
+            resumeRunningWorkout()
         }
+    }
+
+    /// Debug hook for UI tests: seed only when empty so re-appearing doesn't duplicate rows.
+    private func seedSampleWorkoutsIfRequested() {
+        guard ProcessInfo.processInfo.arguments.contains("-seedSampleWorkouts"), workouts.isEmpty else { return }
+        for days in 0..<6 {
+            let end = Date.now.addingTimeInterval(-Double(days) * 86_400)
+            let workout = Workout(startedAt: end.addingTimeInterval(-3_600))
+            workout.endedAt = end
+            modelContext.insert(workout)
+        }
+    }
+
+    // shortcut: resumes the workout in the app only, the HealthKit session is lost if the app was killed; upgrade with HKHealthStore.recoverActiveWorkoutSession if Fitness entries go missing
+    private func resumeRunningWorkout() {
+        if activeWorkout == nil { activeWorkout = WorkoutActions.running(in: workouts) }
     }
 
     private func startWorkout() {
