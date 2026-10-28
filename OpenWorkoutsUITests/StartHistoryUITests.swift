@@ -38,6 +38,35 @@ final class StartHistoryUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 5), .completed)
     }
 
+    func testNewWorkoutOpensUnstartedThenStarts() {
+        let app = launch()
+        XCTAssertTrue(app.buttons["newWorkoutButton"].waitForExistence(timeout: 10))
+        app.buttons["newWorkoutButton"].tap()
+
+        let start = app.buttons["startWorkoutButton"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["endWorkoutButton"].exists)
+        let back = app.navigationBars["Workout"].buttons["Start"]
+        XCTAssertTrue(back.exists)
+        start.tap()
+        XCTAssertTrue(app.buttons["endWorkoutButton"].waitForExistence(timeout: 5))
+        // Running workout can only be left through End workout.
+        XCTAssertFalse(back.exists)
+    }
+
+    func testDraftSurvivesTabSwitch() {
+        let app = launch()
+        XCTAssertTrue(app.buttons["newWorkoutButton"].waitForExistence(timeout: 10))
+        app.buttons["newWorkoutButton"].tap()
+        XCTAssertTrue(app.buttons["startWorkoutButton"].waitForExistence(timeout: 5))
+
+        app.tabBars.buttons["Statistics"].tap()
+        app.tabBars.buttons["Start"].tap()
+        XCTAssertTrue(app.buttons["startWorkoutButton"].waitForExistence(timeout: 5))
+        app.buttons["startWorkoutButton"].tap()
+        XCTAssertTrue(app.buttons["endWorkoutButton"].waitForExistence(timeout: 5))
+    }
+
     func testSeededWorkoutsShowFiveOnStartAndAllSixInHistory() {
         let app = launch(seedSamples: true)
         XCTAssertTrue(app.buttons["seeAllButton"].waitForExistence(timeout: 10))

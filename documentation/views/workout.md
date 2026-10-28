@@ -21,7 +21,7 @@ Code: `OpenWorkouts/Views/WorkoutView.swift` (`WorkoutView`, `SetRow`, and `Work
 - **Add set** under each entry. Swipe to delete a set or a whole entry.
 - Footer:
   - Not started: **Start workout**.
-  - Started: running timer (h:mm:ss, ticks every second) and red **End workout**.
+  - Started: running timer (h:mm:ss, ticks every second) and red **End workout**. The back button is hidden, so **End workout** is the only way out and the Health session always finishes.
 - Once `endedAt` is set the view body switches to [Post-workout](post-workout.md) in place (no extra navigation).
 
 ## Behaviour (`WorkoutActions`)
@@ -30,9 +30,8 @@ Code: `OpenWorkouts/Views/WorkoutView.swift` (`WorkoutView`, `SetRow`, and `Work
 - `addSet`: new set with next `order`, copying all values of the previous set.
 - `start`: sets `startedAt = now`, calls `tracker.start(at:)` → Fitness Traditional Strength Training session ([Health](../features/health-fitness.md)).
 - `end`: sets `endedAt = now`, stores `await tracker.end(at:)` in `activeEnergyKcal`.
-- `discardIfEmptyDraft` (on disappear): deletes the workout if it was never started and has no entries.
-
-See the known issue in [Start](start.md): workouts currently open already started.
+- `running(in:)`: newest workout with `startedAt` set and no `endedAt`. [Start](start.md) uses it to reopen an unfinished workout.
+- `discardIfEmptyDraft`: deletes the workout if it was never started and has no entries. Called by [Start](start.md) when the view is popped, not on disappear, so switching tabs keeps the draft.
 
 ## Accessibility identifiers
 
@@ -40,4 +39,4 @@ See the known issue in [Start](start.md): workouts currently open already starte
 
 ## Tests
 
-`OpenWorkoutsTests/WorkoutViewLogicTests.swift` covers every `WorkoutActions` function with `FakeTracker`. No UI test for this view yet.
+`OpenWorkoutsTests/WorkoutViewLogicTests.swift` covers every `WorkoutActions` function with `FakeTracker`. UI tests for Start → End are in `OpenWorkoutsUITests/StartHistoryUITests.swift`.

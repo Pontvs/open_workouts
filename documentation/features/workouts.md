@@ -18,16 +18,14 @@ A workout is one training session. Models: `OpenWorkouts/Models/Workout.swift` (
 ## Lifecycle
 
 1. **Draft**: `startedAt == nil`, `endedAt == nil`. Exercises and sets can be added.
-2. **Started**: `startedAt` set by the Start button on the workout view. A timer runs. A Health session is started (see [health-fitness.md](health-fitness.md)).
+2. **Started**: `startedAt` set by the Start button on the workout view. A timer runs. The back button is hidden; an unfinished started workout is reopened by Start on next appear. A Health session is started (see [health-fitness.md](health-fitness.md)).
 3. **Ended**: `endedAt` set by the End button. The Health session is finished and saved. `activeEnergyKcal` is stored when HealthKit returns a value. The user then rates the workout on the post-workout view.
 
 `isFinished` is `endedAt != nil`.
 
 ### Empty draft cleanup
 
-When the Workout view disappears, a workout that was never started and has no entries is deleted (`WorkoutActions.discardIfEmptyDraft`).
-
-Known issue: Start's **New workout** creates the workout already started, so the Draft state and this cleanup are currently skipped. See [views/start.md](../views/start.md).
+When the user navigates back from the Workout view, a workout that was never started and has no entries is deleted (`WorkoutActions.discardIfEmptyDraft`, called from [Start](../views/start.md)). Switching tabs does not delete it.
 
 ## Ratings
 

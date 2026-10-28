@@ -66,6 +66,17 @@ struct WorkoutViewLogicTests {
         #expect(workout.isFinished)
     }
 
+    @Test func runningPicksNewestStartedUnfinishedWorkout() {
+        let draft = Workout()
+        let older = Workout(startedAt: Date(timeIntervalSince1970: 1_000))
+        let newer = Workout(startedAt: Date(timeIntervalSince1970: 2_000))
+        let finished = Workout(startedAt: Date(timeIntervalSince1970: 3_000))
+        finished.endedAt = Date(timeIntervalSince1970: 4_000)
+
+        #expect(WorkoutActions.running(in: [draft, older, newer, finished]) === newer)
+        #expect(WorkoutActions.running(in: [draft, finished]) == nil)
+    }
+
     @Test func emptyUnstartedDraftIsDiscarded() throws {
         let context = try makeContext()
         let draft = Workout()

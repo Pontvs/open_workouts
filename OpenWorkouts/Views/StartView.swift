@@ -36,6 +36,10 @@ struct StartView: View {
                 .accessibilityIdentifier("newWorkoutButton")
         }
         .navigationDestination(item: $activeWorkout) { WorkoutView(workout: $0) }
+        // Cleanup on pop, not onDisappear: switching tabs must not delete the draft still on screen.
+        .onChange(of: activeWorkout) { old, new in
+            if let old, new == nil { WorkoutActions.discardIfEmptyDraft(old, context: modelContext) }
+        }
         .task {
             // Debug hook for UI tests: seed only when empty so re-appearing doesn't duplicate rows.
             if ProcessInfo.processInfo.arguments.contains("-seedSampleWorkouts"), workouts.isEmpty {
@@ -47,11 +51,13 @@ struct StartView: View {
                 }
             }
             bodyweightKg = Profile.current(in: modelContext).weightKg
+            // shortcut: resumes the workout in the app only, the HealthKit session is lost if the app was killed; upgrade with HKHealthStore.recoverActiveWorkoutSession if Fitness entries go missing
+            if activeWorkout == nil { activeWorkout = WorkoutActions.running(in: workouts) }
         }
     }
 
     private func startWorkout() {
-        let workout = Workout(startedAt: .now)
+        let workout = Workout()
         modelContext.insert(workout)
         activeWorkout = workout
     }

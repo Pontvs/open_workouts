@@ -35,6 +35,13 @@ enum WorkoutActions {
         workout.activeEnergyKcal = await tracker.end(at: now)
     }
 
+    /// Newest started, unfinished workout, e.g. after the app was killed mid-workout.
+    static func running(in workouts: [Workout]) -> Workout? {
+        workouts
+            .filter { $0.startedAt != nil && !$0.isFinished }
+            .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+    }
+
     /// Drops drafts the user opened and abandoned so they don't pile up.
     static func discardIfEmptyDraft(_ workout: Workout, context: ModelContext) {
         guard workout.startedAt == nil, (workout.entries ?? []).isEmpty else { return }
@@ -79,6 +86,8 @@ struct WorkoutView: View {
                 }
             }
             .navigationTitle("Workout")
+            // A running workout is left only through End, so the Health session always finishes.
+            .navigationBarBackButtonHidden(workout.startedAt != nil)
             .toolbar {
                 Button("Add exercise", systemImage: "plus") { showingPicker = true }
                     .accessibilityIdentifier("addExerciseButton")
@@ -89,7 +98,6 @@ struct WorkoutView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) { footer }
-            .onDisappear { WorkoutActions.discardIfEmptyDraft(workout, context: modelContext) }
         }
     }
 
