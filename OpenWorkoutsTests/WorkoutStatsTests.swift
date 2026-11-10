@@ -223,32 +223,26 @@ struct WorkoutStatsTests {
         #expect(WorkoutStats.finished([], since: .allTime).isEmpty)
     }
 
-    // MARK: monthly
+    // MARK: cumulative
 
-    @Test func monthlyGroupsByMonthAndSortsAscending() throws {
+    @Test func cumulativeRunsFromStartToNowOldestFirst() throws {
         let context = try makeContext()
         let jan = workout(context, ended: date(2026, 1, 20), entries: [(exercise(), [set(reps: 2, weight: 100)])])
         let janAgain = workout(context, ended: date(2026, 1, 2), entries: [(exercise(), [set(reps: 1, weight: 50)])])
-        let dec = workout(context, ended: date(2025, 12, 31), entries: [(exercise(), [set(reps: 1, weight: 10)])])
+        let unfinished = workout(context, started: date(2026, 1, 5))
 
-        let buckets = WorkoutStats.monthly([jan, janAgain, dec], bodyweightKg: 75)
-        #expect(buckets.count == 2)
-        #expect(buckets[0].month == date(2025, 12, 1, hour: 0))
-        #expect(buckets[0].count == 1)
-        #expect(buckets[0].weightKg == 10)
-        #expect(buckets[1].month == date(2026, 1, 1, hour: 0))
-        #expect(buckets[1].count == 2)
-        #expect(buckets[1].weightKg == 250)
-        #expect(buckets[1].id == buckets[1].month)
+        let points = WorkoutStats.cumulative([jan, unfinished, janAgain], bodyweightKg: 75, from: date(2025, 12, 1), now: date(2026, 2, 1))
+        #expect(points == [
+            StatPoint(date: date(2025, 12, 1), count: 0, weightKg: 0),
+            StatPoint(date: date(2026, 1, 2), count: 1, weightKg: 50),
+            StatPoint(date: date(2026, 1, 20), count: 2, weightKg: 250),
+            StatPoint(date: date(2026, 2, 1), count: 2, weightKg: 250),
+        ])
     }
 
-    @Test func monthlySkipsUnfinishedWorkouts() throws {
-        let context = try makeContext()
-        let unfinished = workout(context, started: date(2026, 3, 1))
-        #expect(WorkoutStats.monthly([unfinished], bodyweightKg: 75).isEmpty)
-    }
-
-    @Test func monthlyEmptyInputGivesNoBuckets() {
-        #expect(WorkoutStats.monthly([], bodyweightKg: 75).isEmpty)
+    @Test func cumulativeEmptyInputIsFlatZeroLine() {
+        let points = WorkoutStats.cumulative([], bodyweightKg: 75, from: date(2026, 1, 1), now: date(2026, 2, 1))
+        #expect(points.map(\.count) == [0, 0])
+        #expect(points.map(\.date) == [date(2026, 1, 1), date(2026, 2, 1)])
     }
 }

@@ -37,7 +37,7 @@ For parallel agents, add `-derivedDataPath build/dd-<name>` and use a separate s
 |---|---|
 | `ModelTests` | enum accessors, ordering, `Profile.current`, `Since`, cascade delete |
 | `SeedTests` | bundled JSON decodes, seeding runs once |
-| `WorkoutStatsTests` | duration, load, total weight, kcal, since filter, monthly buckets |
+| `WorkoutStatsTests` | duration, load, total weight, kcal, since filter, cumulative series |
 | `WorkoutViewLogicTests` | `WorkoutActions` |
 | `HealthKitTrackerTests` | configuration, graceful failure |
 | `LaunchTests` | tabs exist |

@@ -1,10 +1,9 @@
 import Foundation
 
-struct MonthBucket: Identifiable, Equatable {
-    let month: Date
+struct StatPoint: Equatable {
+    let date: Date
     let count: Int
     let weightKg: Double
-    var id: Date { month }
 }
 
 enum WorkoutStats {
@@ -54,16 +53,15 @@ enum WorkoutStats {
             .map(\.0)
     }
 
-    static func monthly(_ ws: [Workout], bodyweightKg: Double) -> [MonthBucket] {
-        let calendar = Calendar.current
-        var buckets: [Date: (count: Int, weightKg: Double)] = [:]
-        for w in ws {
-            guard let ended = w.endedAt, let month = calendar.dateInterval(of: .month, for: ended)?.start else { continue }
-            let old = buckets[month, default: (0, 0)]
-            buckets[month] = (old.count + 1, old.weightKg + totalWeight(w, bodyweightKg: bodyweightKg))
+    /// Running totals: a zero point at `from`, one point per finished workout (oldest first), and a final point at `now`.
+    static func cumulative(_ ws: [Workout], bodyweightKg: Double, from: Date, now: Date = .now) -> [StatPoint] {
+        var points = [StatPoint(date: from, count: 0, weightKg: 0)]
+        for w in ws.filter({ $0.endedAt != nil }).sorted(by: { $0.endedAt! < $1.endedAt! }) {
+            let last = points[points.count - 1]
+            points.append(StatPoint(date: w.endedAt!, count: last.count + 1, weightKg: last.weightKg + totalWeight(w, bodyweightKg: bodyweightKg)))
         }
-        return buckets
-            .map { MonthBucket(month: $0.key, count: $0.value.count, weightKg: $0.value.weightKg) }
-            .sorted { $0.month < $1.month }
+        let last = points[points.count - 1]
+        points.append(StatPoint(date: now, count: last.count, weightKg: last.weightKg))
+        return points
     }
 }

@@ -30,5 +30,5 @@ Bodyweight comes from the current `Profile.weightKg`, so changing the profile we
 
 - Only finished workouts (`isFinished`) are counted.
 - **Since** filter: keeps finished workouts with `endedAt >= Since.startDate()`, newest first. `allTime` has no lower bound. The other ranges subtract 36, 12, 6 or 3 months from now, using `Calendar.current` (`OpenWorkouts/Models/Enums.swift`).
-- Monthly buckets: workouts are grouped by calendar month of `endedAt`, oldest first; each bucket holds a count and total kg.
-- Chart 1 shows the number of workouts per bucket. Chart 2 shows total weight lifted per bucket. See [views/statistics.md](../views/statistics.md).
+- Cumulative series (`WorkoutStats.cumulative`): a zero point at the range start, one point per finished workout at its `endedAt` (oldest first) holding the running count and running kg, and a final point at now.
+- Chart 1 shows the running workout count. Chart 2 shows the running total weight lifted. See [views/statistics.md](../views/statistics.md).
