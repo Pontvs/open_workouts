@@ -86,6 +86,7 @@ final class StartHistoryUITests: XCTestCase {
 
         app.cells.firstMatch.swipeLeft()
         app.buttons["Delete"].firstMatch.tap()
+        XCTAssertTrue(app.cells.element(boundBy: 5).waitForNonExistence(timeout: 5))
         XCTAssertEqual(app.cells.count, 5)
     }
 }

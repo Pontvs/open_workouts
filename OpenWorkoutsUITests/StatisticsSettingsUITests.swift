@@ -22,11 +22,11 @@ final class StatisticsSettingsUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["No workouts yet"].waitForExistence(timeout: 5))
 
-        let picker = app.descendants(matching: .any)["sincePicker"]
+        let picker = app.buttons["sincePicker"]
         XCTAssertTrue(picker.waitForExistence(timeout: 5))
         picker.tap()
         app.buttons["6 months"].tap()
-        XCTAssertEqual(picker.value as? String, "6 months")
+        XCTAssertEqual(picker.label, "Since, 6 months")
     }
 
     func testProfileValuesKeptAfterReturning() {

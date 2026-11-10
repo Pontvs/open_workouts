@@ -33,7 +33,7 @@ struct ExerciseListView: View {
                 }
             }
         }
-        .searchable(text: $search)
+        .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always))
         .navigationTitle("Exercises")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

@@ -18,7 +18,7 @@ Weight feeds bodyweight loads and kcal estimates.
 
 ## Exercises (`ExerciseListView`)
 
-- All exercises, searchable by name, grouped in sections by category; row = name + equipment.
+- All exercises, searchable by name (search field always visible), grouped in sections by category; row = name + equipment.
 - Tap → edit. Toolbar **+** (`addExerciseToolbarButton`) → new. Swipe to delete.
 - Deleting an exercise keeps past workouts; their entries lose the link and show "Exercise".
 
